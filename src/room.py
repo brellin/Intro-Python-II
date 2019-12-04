@@ -11,3 +11,7 @@ class Room():
         self.s_to = None
         self.e_to = None
         self.w_to = None
+        self.item_list = list()
+
+    def add_item_to_room(self, item):
+        self.item_list.append(item)
