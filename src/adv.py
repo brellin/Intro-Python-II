@@ -74,13 +74,14 @@ Type "N", "S", "E", or "W" ("Q" to quit): ''')
         has_quit = True
         print(f'\nSad to see you go, {user.name} T_T')
     else:
-        direction = None
-        if (which_dir == 'N'):
-            direction = 'North'
-        if (which_dir == 'S'):
-            direction = 'South'
-        if (which_dir == 'E'):
-            direction = 'East'
-        if (which_dir == 'W'):
-            direction = 'West'
+
+        def get_dir_name(curr):
+            dirs = {
+                'N': 'North',
+                'S': 'South',
+                'E': 'East',
+                'W': 'West'
+            }
+            return dirs.get(curr)
+        direction = get_dir_name(which_dir)
         print(f'Sadly, you cannot move {direction} from this location.')
