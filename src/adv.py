@@ -1,4 +1,5 @@
 from room import Room
+from player import Player
 
 # Declare all the rooms
 
@@ -37,15 +38,40 @@ room['treasure'].s_to = room['narrow']
 # Main
 #
 
+
 # Make a new player object that is currently in the 'outside' room.
+user = Player(input('Choose your name: '), room['outside'])
+
 
 # Write a loop that:
-#
-# * Prints the current room name
-# * Prints the current description (the textwrap module might be useful here).
-# * Waits for user input and decides what to do.
-#
-# If the user enters a cardinal direction, attempt to move to the room there.
-# Print an error message if the movement isn't allowed.
-#
-# If the user enters "q", quit the game.
+has_quit = False
+
+user_room = user.current_room
+
+while not has_quit:
+
+    # * Prints the current room name and prints the current description (the textwrap module might be useful here)
+    print(f"\n{user_room.name}: {user_room.description}\n")
+
+    # * Waits for user input and decides what to do.
+    which_dir = input('''Which direction would you like to go?
+Type N, S, E, or W: ''')
+    which_dir = which_dir.upper()
+
+    # If the user enters "q", quit the game.
+    if (which_dir == 'Q'):
+        has_quit = True
+        print(f'\n\nSad to see you go, {user.name} T_T')
+
+    # If the user enters a cardinal direction, attempt to move to the room there.
+    if (which_dir == 'N' and not user_room.n_to == None):
+        user_room = user_room.n_to
+    elif (which_dir == 'S' and not user_room.s_to == None):
+        user_room = user_room.s_to
+    elif (which_dir == 'E' and not user_room.e_to == None):
+        user_room = user_room.e_to
+    elif (which_dir == 'W' and not user_room.w_to == None):
+        user_room = user_room.w_to
+        # Prints an error message if the movement isn't allowed.
+    else:
+        print('Sadly, you cannot move this direction.')
