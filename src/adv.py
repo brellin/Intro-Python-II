@@ -60,7 +60,7 @@ while not has_quit:
 Type "N", "S", "E", or "W" ("Q" to quit): ''')
     which_dir = which_dir.upper()
 
-    def user_room_dir(curr):
+    def user_room_dir(curr=which_dir):
         dirs = {
             'N': user_room.n_to,
             'S': user_room.s_to,
@@ -69,7 +69,7 @@ Type "N", "S", "E", or "W" ("Q" to quit): ''')
         }
         return dirs.get(curr)
 
-    def get_dir_name(curr):
+    def get_dir_name(curr=which_dir):
         dirs = {
             'N': 'North',
             'S': 'South',
@@ -84,11 +84,9 @@ Type "N", "S", "E", or "W" ("Q" to quit): ''')
         print(f'\nSad to see you go, {user.name} T_T')
 
     # If the user enters a cardinal direction, attempt to move to the room there.
-    elif (not user_room_dir(which_dir) == None):
-        user_room = user_room_dir(which_dir)
+    elif (not user_room_dir() == None):
+        user_room = user_room_dir()
 
     else:
-
-        direction = get_dir_name(which_dir)
-
+        direction = get_dir_name()
         print(f'Sadly, you cannot move {direction} from this location.')
