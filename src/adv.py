@@ -58,8 +58,7 @@ while not has_quit:
 
     # * Waits for user input and decides what to do.
     which_dir = input(
-        'Which direction would you like to go?\n\nType "N", "S", "E", or "W" ("Q" to quit): ')
-    which_dir = which_dir.upper()
+        'Which direction would you like to go?\n\nType "N", "S", "E", or "W" ("Q" to quit): ').upper()
 
     room_dirs = {
         'N': user_room.n_to,
