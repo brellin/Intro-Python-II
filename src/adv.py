@@ -78,7 +78,7 @@ Type "N", "S", "E", or "W" ("Q" to quit): ''')
         }
         return dirs.get(curr)
 
-    # If the user enters "q", quit the game and print an error message if the movement isn't allowed.
+    # If the user enters "q", quit the game.
     if (which_dir == 'Q'):
         has_quit = True
         print(f'\nSad to see you go, {user.name} T_T')
@@ -87,6 +87,7 @@ Type "N", "S", "E", or "W" ("Q" to quit): ''')
     elif (not user_room_dir() == None):
         user_room = user_room_dir()
 
+    # Print an error message if the movement isn't allowed.
     else:
         direction = get_dir_name()
         print(f'Sadly, you cannot move {direction} from this location.')
