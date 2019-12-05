@@ -43,10 +43,11 @@ user = Player(input('Choose your name: '), room['outside'])
 
 has_quit = False
 
-user_room = user.current_room
 
 # Write a loop that:
 while not has_quit:
+
+    user_room = user.current_room
 
     # * Prints the current room name and prints the current description (the textwrap module might be useful here)
     print(f"\n{user_room.name}: {user_room.description}\n")
@@ -56,8 +57,8 @@ while not has_quit:
             print(f'{item.name}: {item.description}')
 
     # * Waits for user input and decides what to do.
-    which_dir = input('''Which direction would you like to go?
-Type "N", "S", "E", or "W" ("Q" to quit): ''')
+    which_dir = input(
+        'Which direction would you like to go?\n\nType "N", "S", "E", or "W" ("Q" to quit): ')
     which_dir = which_dir.upper()
 
     def user_room_dir(curr=which_dir):
@@ -85,7 +86,7 @@ Type "N", "S", "E", or "W" ("Q" to quit): ''')
 
     # If the user enters a cardinal direction, attempt to move to the room there.
     elif (not user_room_dir() == None):
-        user_room = user_room_dir()
+        user.move(user_room_dir())
 
     # Print an error message if the movement isn't allowed.
     else:

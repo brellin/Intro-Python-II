@@ -12,5 +12,8 @@ class Player():
     def __str__(self):
         return f'Player(name: {self.name}, current_room: {self.current_room})'
 
+    def move(self, room):
+        self.current_room = room
+
     def add_item_to_inventory(self, item):
         self.inventory.append(item)
