@@ -62,12 +62,12 @@ welcome_help_text = f'''\nWelcome to my game, {user.name}!
 It's a simple, text-based game, 
 but you do have a few options as to what you can do. 
 You can:
-\tType the first letter of a cardinal direction,
-\t"GET" or "TAKE" and the name of an item in the current room,
-\t"I" or "INVENTORY" to view the items in your inventory,
+\tType the first letter of a cardinal direction to attempt to move in that direction,
+\t"GET"/"TAKE" and the name of an item in the current room,
+\t"I"/"INVENTORY" to view the items in your inventory,
 \t"DROP" and the name of an item in your inventory,
-\t"H" or "HELP" to view this screen again,
-\tor "Q" to quit.\n\n'''
+\t"H"/"HELP" to view this screen again,
+\tor "Q"/"QUIT" to quit.\n\n'''
 
 print(welcome_help_text)
 
@@ -104,7 +104,7 @@ while not has_quit:
     }
 
     # If the user enters "q", quit the game.
-    if (user_input == 'Q'):
+    if (user_input == 'Q' or user_input == 'QUIT'):
         has_quit = True
         print(f'\nSad to see you go, {user.name} T_T')
 
