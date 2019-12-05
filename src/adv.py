@@ -8,25 +8,40 @@ room = {
 
     'outside':  Room('Outside Cave Entrance', 'North of you, the cave mount beckons'),
 
-    'foyer':    Room('Foyer', '''Dim light filters in from the south. Dusty
+    'foyer':    Room('Foyer',
+                     '''Dim light filters in from the south. Dusty
 passages run north and east.'''),
 
-    'overlook': Room('Grand Overlook', '''A steep cliff appears before you, falling
+    'overlook': Room('Grand Overlook',
+                     '''A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm.'''),
+the distance. Above you, you see a platform with a bridge
+that leads toward the light.'''),
 
-    'narrow':   Room('Narrow Passage', '''The narrow passage bends here from west
+    'narrow':   Room('Narrow Passage',
+                     '''The narrow passage bends here from west
 to north. The smell of gold permeates the air.'''),
 
     'treasure': Room('Treasure Chamber', f'''You've found the long-lost treasure
 chamber! The only exit is to the south.'''),
 
-    'staircase': Room('Staircase', '''Stairs connecting the downstairs to the upstairs 
+    'staircase': Room('Staircase',
+                      '''Stairs connecting the downstairs to the upstairs 
 of this house.Nothing interesting, just some stone stairs.
 Move north to go upstairs and south to go downstairs.'''),
 
-    'loft': Room('Loft', '''The staircase opens to a quaint room with a rail, overlooking the foyer. 
-There is a comfy-looking chair and a nightstand sitting next to a window.'''),
+    'loft': Room('Loft',
+                 '''The staircase opens to a quaint room with a rail, 
+overlooking the foyer to the south. There is a comfy 
+looking chair and a nightstand sitting next to the rail.
+Does somebody live here???
+To the north, there is a nifty door that leads to - what looks like - a balcony.'''),
+
+    'balcony': Room('Balcony',
+                    '''Stepping out the door and onto the balcony, you see 
+that there is a rickety, wooden bridge that leads
+toward a light shining in the distance, but 
+you can\'t make out what the light is from here.''')
 
 }
 
@@ -51,6 +66,9 @@ room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 room['staircase'].s_to = room['foyer']
 room['staircase'].n_to = room['loft']
+room['loft'].w_to = room['staircase']
+room['loft'].n_to = room['balcony']
+room['balcony'].s_to = room['loft']
 
 # Add items to rooms
 room['outside'].add_item_to_room(item_list['arrows'])
@@ -66,7 +84,8 @@ room['treasure'].add_item_to_room(item_list['ring'])
 # Make a new player object that is currently in the 'outside' room.
 user = Player(input('Choose your name: '), room['outside'])
 
-has_quit = False
+global crashed
+crashed = False
 
 welcome_help_text = f'''\nWelcome to my game, {user.name}!
 It's a simple, text-based game, 
@@ -79,110 +98,114 @@ You can:
 \t"H"/"HELP" to view this screen again,
 \tor "Q"/"QUIT" to quit.\n\n'''
 
-print(welcome_help_text)
+
+def print_help():
+    print(welcome_help_text)
+
+
+print_help()
 
 # Write a loop that:
-while not has_quit:
+while not crashed:
 
     current_room = user.current_room
 
     # * Prints the current room name and prints the current description (the textwrap module might be useful here)
     print(f"\n{current_room.name}: {current_room.description}\n")
-    if (current_room.has_items()):
-        print(f'Item(s) in {current_room.name}:')
-        for item in current_room.item_list:
-            print(f'\t{item.name}: {item.description}')
-        print('\n')
+
+    current_room.print_items()
 
     # * Waits for user input and decides what to do.
-    user_input = input('What would you like to do? ').upper()
+    command = input('\nWhat would you like to do? ').upper()
 
-    split_input = user_input.split(' ')
+    split_input = command.split(' ')
 
     room_dirs = {
-        'N': current_room.n_to,
-        'S': current_room.s_to,
-        'E': current_room.e_to,
-        'W': current_room.w_to
+        'N': {
+            'check': current_room.n_to,
+            'name': 'North'
+        },
+        'S': {
+            'check': current_room.s_to,
+            'name': 'South'
+        },
+        'E': {
+            'check': current_room.e_to,
+            'name': 'East'
+        },
+        'W': {
+            'check': current_room.w_to,
+            'name': 'West'
+        },
     }
 
-    dir_names = {
-        'N': 'North',
-        'S': 'South',
-        'E': 'East',
-        'W': 'West'
+    def pick_up_item(selection):
+        if(current_room.has_item(selection)):
+            current_room.remove_item_from_room(selection)
+            user.add_item_to_inventory(selection)
+            selection.on_take()
+        else:
+            print(
+                f'Sorry, "{input_item}" is not in {current_room}.\nPlease check your spelling and try again.')
+
+    def drop_item(selection):
+        if(user.has_item(selection)):
+            user.drop_item(selection)
+            current_room.add_item_to_room(selection)
+            selection.on_drop()
+        else:
+            print(
+                f'Sorry, "{input_item}" is not in your inventory.\nPlease check your spelling and try again.')
+
+    def move_to_room():
+        if (room_dirs[command]['check'] == None):
+            # Prints an error message if the movement isn't allowed.
+            direction = room_dirs[command]['name']
+            print(
+                f'Sadly, you cannot move {direction} from this location.')
+        else:
+            # If the user enters a cardinal direction, attempt to move to the room there.
+            user.move(room_dirs[command]['check'])
+
+    def quit_game():
+        global crashed
+        crashed = True
+        print(f'\nUntil next time, {user.name}!')
+
+    def unrecognized(bad):
+        print(
+            f'"{bad}" is not a recognized command.\nType "H" or "HELP" for help.')
+
+    commands = {
+        'GET': pick_up_item,
+        'TAKE': pick_up_item,
+        'DROP': drop_item,
+        'N': move_to_room,
+        'S': move_to_room,
+        'E': move_to_room,
+        'W': move_to_room,
+        'Q': quit_game,
+        'QUIT': quit_game,
+        'I': user.print_inventory,
+        'INVENTORY': user.print_inventory,
+        'H': print_help,
+        'HELP': print_help,
     }
 
-    # If the user enters "q", quit the game.
-    if (user_input == 'Q' or user_input == 'QUIT'):
-        has_quit = True
-        print(f'\nSad to see you go, {user.name} T_T')
+    if (len(split_input) > 1):
 
-    # If action and object words
-    elif (len(split_input) > 1):
-
-        # Declare word variables
         action_word = split_input[0]
         input_item = split_input[1]
         item_list_item = item_list.get(input_item.lower())
 
-        # If action word is get or take and current room has the item
-        if ((action_word == 'GET' or action_word == 'TAKE') and current_room.has_item(item_list_item)):
-
-            # Remove item from current room
-            current_room.remove_item_from_room(item_list_item)
-
-            # Add item to user's inventory
-            user.add_item_to_inventory(item_list_item)
-
-            # Invoke item's method for taking
-            item_list_item.on_take()
-
-        # If action word is drop and item is in user's inventory
-        elif (action_word == 'DROP' and user.has_item(item_list_item)):
-
-            # Remove item from user's inventory
-            user.drop_item(item_list_item)
-
-            # Add item to current room
-            current_room.add_item_to_room(item_list_item)
-
-            # Invoke item's method for dropping
-            item_list_item.on_drop()
+        if (action_word in commands.keys()):
+            commands[action_word](item_list_item)
 
         else:
+            unrecognized(action_word)
 
-            if (not (action_word == 'GET' or action_word == 'TAKE' or action_word == 'DROP')):
-                print(
-                    f'"{action_word}" is not a recognized command.\nType "H" or "HELP" for help.')
-
-            else:
-                print(
-                    f'Sorry, "{input_item}" is not in {current_room}.\nPlease check your spelling and try again.')
-
-    elif (user_input == 'I' or user_input == 'INVENTORY'):
-
-        if(len(user.inventory) > 0):
-            print(f'\n{user.name}\'s Inventory:')
-            for inventory_item in user.inventory:
-                print(f'\t{inventory_item.name}: {inventory_item.description}')
-
-        else:
-            print(
-                '\nYou have no items in your inventory.\n\nTry roaming around to find some items.')
-
-    elif (user_input == 'H' or user_input == 'HELP'):
-        print(welcome_help_text)
-
-    # If the user enters a cardinal direction, attempt to move to the room there.
-    elif ((user_input == 'N' or user_input == 'S' or user_input == 'E' or user_input == 'W') and not room_dirs[user_input] == None):
-        user.move(room_dirs[user_input])
-
-    # Prints an error message if the movement isn't allowed.
-    elif(user_input == 'N' or user_input == 'S' or user_input == 'E' or user_input == 'W'):
-        direction = dir_names[user_input]
-        print(f'Sadly, you cannot move {direction} from this location.')
+    elif (command in commands.keys()):
+        commands[command]()
 
     else:
-        print(
-            f'"{user_input}" is not a recognized command.\nType "H" or "HELP" for help.')
+        unrecognized(command)

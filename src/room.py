@@ -24,3 +24,12 @@ class Room():
 
     def has_items(self):
         return len(self.item_list) > 0
+
+    def print_items(self):
+        if (self.has_items()):
+            condS = 's' if len(self.item_list) > 1 else ''
+            print(f'Item{condS} in {self.name}:')
+            for item in self.item_list:
+                print(f'\t{item.name}: {item.description}')
+        else:
+            print('There are no items in this room.')

@@ -23,3 +23,12 @@ class Player():
 
     def has_item(self, item):
         return item in self.inventory
+
+    def print_inventory(self):
+        if(len(self.inventory) > 0):
+            print(f'\n{self.name}\'s Inventory:')
+            for inventory_item in self.inventory:
+                print(f'\t{inventory_item.name}: {inventory_item.description}')
+        else:
+            print(
+                '\nYou have no items in your inventory.\n\nTry roaming around to find some items.')
