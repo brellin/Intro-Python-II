@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 
 # Declare all the rooms
 
@@ -22,9 +23,16 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
+item = {
+    'jewel': Item('Jewel', 'A jewel that looks like it could have belonged to royalty at one time.'),
+    'ring': Item('Ring', 'A simple ring.'),
+    'sword': Item('Sword', 'Your average, everyday, run-of-the-mill sword.'),
+    'bow': Item('Bow', 'Just a bow. No arrows...'),
+    'arrows': Item('Arrows', 'A bundle of arrows, no bow...')
+}
+
 
 # Link rooms together
-
 room['outside'].n_to = room['foyer']
 room['foyer'].s_to = room['outside']
 room['foyer'].n_to = room['overlook']
@@ -33,6 +41,13 @@ room['overlook'].s_to = room['foyer']
 room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
+
+# Add items to rooms
+room['outside'].add_item_to_room(item['arrows'])
+room['foyer'].add_item_to_room(item['sword'])
+room['overlook'].add_item_to_room(item['bow'])
+room['treasure'].add_item_to_room(item['jewel'])
+room['treasure'].add_item_to_room(item['ring'])
 
 #
 # Main
@@ -52,9 +67,10 @@ while not has_quit:
     # * Prints the current room name and prints the current description (the textwrap module might be useful here)
     print(f"\n{user_room.name}: {user_room.description}\n")
     if (len(user_room.item_list) > 0):
-        print(f'Item(s) in {user_room.name}')
+        print(f'Item(s) in {user_room.name}:')
         for item in user_room.item_list:
-            print(f'{item.name}: {item.description}')
+            print(f'\t{item.name}: {item.description}')
+        print('\n')
 
     # * Waits for user input and decides what to do.
     which_dir = input(
@@ -79,11 +95,14 @@ while not has_quit:
         has_quit = True
         print(f'\nSad to see you go, {user.name} T_T')
 
+    elif(not which_dir == ('N' or 'S' or 'E' or 'W' or 'Q')):
+        print(
+            f'Sorry, "{which_dir}" is not a recognized input. Please try again.')
     # If the user enters a cardinal direction, attempt to move to the room there.
     elif (not room_dirs[which_dir] == None):
         user.move(room_dirs[which_dir])
 
-    # Print an error message if the movement isn't allowed.
+    # Prints an error message if the movement isn't allowed.
     else:
         direction = dir_names[which_dir]
         print(f'Sadly, you cannot move {direction} from this location.')
