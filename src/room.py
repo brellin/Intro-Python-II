@@ -15,3 +15,12 @@ class Room():
 
     def add_item_to_room(self, item):
         self.item_list.append(item)
+
+    def remove_item_from_room(self, item):
+        self.item_list.remove(item)
+
+    def has_item(self, item):
+        return item in self.item_list
+
+    def has_items(self):
+        return len(self.item_list) > 0
