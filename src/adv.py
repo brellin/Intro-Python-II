@@ -169,10 +169,10 @@ while not has_quit:
         user.move(room_dirs[user_input])
 
     # Prints an error message if the movement isn't allowed.
+    elif(user_input == 'N' or user_input == 'S' or user_input == 'E' or user_input == 'W'):
+        direction = dir_names[user_input]
+        print(f'Sadly, you cannot move {direction} from this location.')
+
     else:
-        if(user_input == 'N' or user_input == 'S' or user_input == 'E' or user_input == 'W'):
-            direction = dir_names[user_input]
-            print(f'Sadly, you cannot move {direction} from this location.')
-        else:
-            print(
-                f'"{user_input}" is not a recognized command.\nType "H" or "HELP" for help.')
+        print(
+            f'"{user_input}" is not a recognized command.\nType "H" or "HELP" for help.')
