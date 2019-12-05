@@ -61,23 +61,19 @@ while not has_quit:
         'Which direction would you like to go?\n\nType "N", "S", "E", or "W" ("Q" to quit): ')
     which_dir = which_dir.upper()
 
-    def user_room_dir(curr=which_dir):
-        dirs = {
-            'N': user_room.n_to,
-            'S': user_room.s_to,
-            'E': user_room.e_to,
-            'W': user_room.w_to
-        }
-        return dirs.get(curr)
+    room_dirs = {
+        'N': user_room.n_to,
+        'S': user_room.s_to,
+        'E': user_room.e_to,
+        'W': user_room.w_to
+    }
 
-    def get_dir_name(curr=which_dir):
-        dirs = {
-            'N': 'North',
-            'S': 'South',
-            'E': 'East',
-            'W': 'West'
-        }
-        return dirs.get(curr)
+    dir_names = {
+        'N': 'North',
+        'S': 'South',
+        'E': 'East',
+        'W': 'West'
+    }
 
     # If the user enters "q", quit the game.
     if (which_dir == 'Q'):
@@ -85,10 +81,10 @@ while not has_quit:
         print(f'\nSad to see you go, {user.name} T_T')
 
     # If the user enters a cardinal direction, attempt to move to the room there.
-    elif (not user_room_dir() == None):
-        user.move(user_room_dir())
+    elif (not room_dirs[which_dir] == None):
+        user.move(room_dirs[which_dir])
 
     # Print an error message if the movement isn't allowed.
     else:
-        direction = get_dir_name()
+        direction = dir_names[which_dir]
         print(f'Sadly, you cannot move {direction} from this location.')
