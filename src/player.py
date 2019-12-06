@@ -1,4 +1,4 @@
-from item import Potion
+from item import Potion, Weapon
 
 
 class Player():
@@ -11,6 +11,7 @@ class Player():
         self.max_hp = hp
         self.inventory = list()
         self.blocking = False
+        self.equipped = None
 
     def __str__(self):
         return f'Player(name: {self.name}, current_room: {self.current_room})'
@@ -34,6 +35,11 @@ class Player():
             item.on_use()
             self.hp += item.amount
             print(f'\nYou now have {self.hp} health.')
+        elif (type(item) == Weapon):
+            if(not self.equipped == None):
+                self.dmg -= self.equipped.damage
+            self.dmg += item.damage
+            item.on_equip()
         else:
             print(f'\nYou cannot use {item.name}.')
 
@@ -52,7 +58,7 @@ class Player():
     def print_health(self):
         print(f'You currently have {self.hp} health.')
 
-    def take_damage(self, attacker):
+    def take_damage(self, attacker, room):
 
         if (not self.blocking):
             self.hp -= attacker.dmg
@@ -68,8 +74,8 @@ class Player():
             self.blocking = False
             print(f'\nYou blocked {attacker.name}\'s attack!')
 
-    def attack(self, obj):
-        obj.take_damage(self)
+    def attack(self, obj, room):
+        obj.take_damage(self, room)
 
-    def block(self, obj):
+    def block(self, obj, room):
         self.blocking = True

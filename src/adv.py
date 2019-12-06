@@ -1,7 +1,7 @@
 import random
 from room import Room
 from player import Player
-from item import Item, Potion
+from item import Item, Potion, Weapon
 from monster import Monster
 
 # Declare all the rooms
@@ -43,21 +43,29 @@ To the north, there is a nifty door that leads to - what looks like - a balcony.
                     '''Stepping out the door and onto the balcony, you see 
 that there is a rickety, wooden bridge that leads
 toward a light shining in the distance, but 
-you can\'t make out what the light is from here.''')
+you can\'t make out what the light is from here. '''),
+
+    'bridge': Room('Bridge',
+                   '''Underneath you is an unstable bridge with ragged ropes
+keeping it from falling into the massive chasm beneath you.''')
 
 }
 
 item_list = {
     'jewel': Item('Jewel', 'A jewel that looks like it could have belonged to royalty at one time.'),
     'ring': Item('Ring', 'A simple ring.'),
-    'sword': Item('Sword', 'Your average, everyday, run-of-the-mill sword.'),
+    'sword': Weapon('Sword', 'Your average, everyday, run-of-the-mill sword.', 1),
     'bow': Item('Bow', 'Just a bow. No arrows...'),
     'arrows': Item('Arrows', 'A bundle of arrows, no bow...'),
-    'potion': Potion('Potion', 'Heals you for 5 health points.', 5)
+    'potion': Potion('Potion', 'Heals you for 5 health points.', 5),
 }
 
 monsters = {
     'ogre': Monster('Ogre'),
+    'ogre2': Monster('Ogre'),
+    'goblin': Monster('Goblin', None, 3, 1),
+    'goblin2': Monster('Goblin', None, 3, 1),
+    'goblin3': Monster('Goblin', None, 3, 1),
 }
 
 # Link rooms together
@@ -75,6 +83,8 @@ room['staircase'].n_to = room['loft']
 room['loft'].w_to = room['staircase']
 room['loft'].n_to = room['balcony']
 room['balcony'].s_to = room['loft']
+room['balcony'].n_to = room['bridge']
+room['bridge'].s_to = room['balcony']
 
 # Add items to rooms
 room['outside'].add_item_to_room(item_list['arrows'])
@@ -85,11 +95,15 @@ room['treasure'].add_item_to_room(item_list['jewel'])
 room['treasure'].add_item_to_room(item_list['ring'])
 room['treasure'].add_item_to_room(item_list['potion'])
 room['loft'].add_item_to_room(item_list['potion'])
+room['balcony'].add_item_to_room(item_list['potion'])
+room['bridge'].add_item_to_room(item_list['potion'])
 
 # Add monsters to rooms
 room['foyer'].add_monster_to_room(monsters['ogre'])
-room['balcony'].add_monster_to_room(monsters['ogre'])
-room['balcony'].add_monster_to_room(monsters['ogre'])
+room['narrow'].add_monster_to_room(monsters['ogre2'])
+room['bridge'].add_monster_to_room(monsters['goblin'])
+room['bridge'].add_monster_to_room(monsters['goblin2'])
+room['bridge'].add_monster_to_room(monsters['goblin3'])
 
 #
 # Main
@@ -212,12 +226,12 @@ while not crashed:
                     f'\nAttack {monster.name} - or block {monster.name}\'s attack! ').upper()
 
                 if (command in commands.keys()):
-                    commands[command](monster)
+                    commands[command](monster, current_room)
 
                     randomizer = random.randint(0, 10)
 
                     monster.attack(
-                        user) if randomizer > 3 else monster.block(user)
+                        user, current_room) if randomizer > 3 else monster.block(user, current_room)
                 else:
                     unrecognized(command)
 

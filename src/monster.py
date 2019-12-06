@@ -6,13 +6,14 @@ class Monster(Player):
     def __init__(self, name, current_room=None, hp=5, dmg=1):
         super().__init__(name, current_room, dmg, hp)
 
-    def take_damage(self, attacker):
+    def take_damage(self, attacker, room):
 
         if (not self.blocking):
             self.hp -= attacker.dmg
 
             if (self.hp <= 0):
-                self.current_room = None
+                self.change_room(None)
+                room.remove_monster_from_room(self)
                 print(f'\n{self.name}\'s hp hit 0. {self.name} has died.')
 
             else:

@@ -24,6 +24,10 @@ class Room():
         self.monster_list.append(monster)
         monster.change_room(self)
 
+    def remove_monster_from_room(self, monster):
+        self.monster_list.remove(monster)
+        monster.change_room(None)
+
     def has_item(self, item):
         return item in self.item_list
 
