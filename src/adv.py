@@ -1,6 +1,8 @@
+import random
 from room import Room
 from player import Player
-from item import Item
+from item import Item, Potion
+from monster import Monster
 
 # Declare all the rooms
 
@@ -50,9 +52,13 @@ item_list = {
     'ring': Item('Ring', 'A simple ring.'),
     'sword': Item('Sword', 'Your average, everyday, run-of-the-mill sword.'),
     'bow': Item('Bow', 'Just a bow. No arrows...'),
-    'arrows': Item('Arrows', 'A bundle of arrows, no bow...')
+    'arrows': Item('Arrows', 'A bundle of arrows, no bow...'),
+    'potion': Potion('Potion', 'Heals you for 5 health points.', 5)
 }
 
+monsters = {
+    'ogre': Monster('Ogre'),
+}
 
 # Link rooms together
 room['outside'].n_to = room['foyer']
@@ -73,9 +79,17 @@ room['balcony'].s_to = room['loft']
 # Add items to rooms
 room['outside'].add_item_to_room(item_list['arrows'])
 room['foyer'].add_item_to_room(item_list['sword'])
+room['foyer'].add_item_to_room(item_list['potion'])
 room['overlook'].add_item_to_room(item_list['bow'])
 room['treasure'].add_item_to_room(item_list['jewel'])
 room['treasure'].add_item_to_room(item_list['ring'])
+room['treasure'].add_item_to_room(item_list['potion'])
+room['loft'].add_item_to_room(item_list['potion'])
+
+# Add monsters to rooms
+room['foyer'].add_monster_to_room(monsters['ogre'])
+room['balcony'].add_monster_to_room(monsters['ogre'])
+room['balcony'].add_monster_to_room(monsters['ogre'])
 
 #
 # Main
@@ -92,11 +106,14 @@ It's a simple, text-based game,
 but you do have a few options as to what you can do. 
 You can:
 \tType the first letter of a cardinal direction to attempt to move in that direction,
-\t"GET"/"TAKE" and the name of an item in the current room,
-\t"I"/"INVENTORY" to view the items in your inventory,
+\t"GET" or "TAKE" and the name of an item in the current room,
+\t"I" or "INVENTORY" to view the items in your inventory,
 \t"DROP" and the name of an item in your inventory,
-\t"H"/"HELP" to view this screen again,
-\tor "Q"/"QUIT" to quit.\n\n'''
+\t"F" or "FIGHT" and the name of a monster to enter battle with the monster,
+\t"HP" or "HEALTH" to view your health,
+\t"U" or "USE" to use an item,
+\t"H" or "HELP" to view this screen again,
+\tor "Q" or "QUIT" to quit the game.\n\n'''
 
 
 def print_help():
@@ -111,9 +128,12 @@ while not crashed:
     current_room = user.current_room
 
     # * Prints the current room name and prints the current description (the textwrap module might be useful here)
+    if (current_room == None):
+        crashed = True
+
     print(f"\n{current_room.name}: {current_room.description}\n")
 
-    current_room.print_items()
+    current_room.print_contents()
 
     # * Waits for user input and decides what to do.
     command = input('\nWhat would you like to do? ').upper()
@@ -143,22 +163,22 @@ while not crashed:
         if(current_room.has_item(selection)):
             current_room.remove_item_from_room(selection)
             user.add_item_to_inventory(selection)
-            selection.on_take()
         else:
             print(
-                f'Sorry, "{input_item}" is not in {current_room}.\nPlease check your spelling and try again.')
+                f'"{selection}" is not in {current_room}.\nPlease check your spelling and try again.')
 
     def drop_item(selection):
         if(user.has_item(selection)):
             user.drop_item(selection)
             current_room.add_item_to_room(selection)
-            selection.on_drop()
         else:
             print(
-                f'Sorry, "{input_item}" is not in your inventory.\nPlease check your spelling and try again.')
+                f'"{selection}" is not in your inventory.\nPlease check your spelling and try again.')
 
     def move_to_room():
-        if (room_dirs[command]['check'] == None):
+        if (len(current_room.monster_list) > 0):
+            fight_monster(current_room.monster_list[0])
+        elif (room_dirs[command]['check'] == None):
             # Prints an error message if the movement isn't allowed.
             direction = room_dirs[command]['name']
             print(
@@ -176,6 +196,34 @@ while not crashed:
         print(
             f'"{bad}" is not a recognized command.\nType "H" or "HELP" for help.')
 
+    def fight_monster(monster):
+        if (current_room.has_monster(monster)):
+            combat = True
+            while combat:
+
+                commands = {
+                    'B': user.block,
+                    'BLOCK': user.block,
+                    'A': user.attack,
+                    'ATTACK': user.attack,
+                }
+
+                command = input(
+                    f'\nAttack {monster.name} - or block {monster.name}\'s attack! ').upper()
+
+                if (command in commands.keys()):
+                    commands[command](monster)
+
+                    randomizer = random.randint(0, 10)
+
+                    monster.attack(
+                        user) if randomizer > 3 else monster.block(user)
+                else:
+                    unrecognized(command)
+
+                if (monster.hp <= 0 or user.hp <= 0):
+                    combat = False
+
     commands = {
         'GET': pick_up_item,
         'TAKE': pick_up_item,
@@ -190,19 +238,31 @@ while not crashed:
         'INVENTORY': user.print_inventory,
         'H': print_help,
         'HELP': print_help,
+        'F': fight_monster,
+        'FIGHT': fight_monster,
+        'HP': user.print_health,
+        'HEALTH': user.print_health,
+        'U': user.use_item,
+        'USE': user.use_item,
     }
 
     if (len(split_input) > 1):
 
-        action_word = split_input[0]
-        input_item = split_input[1]
-        item_list_item = item_list.get(input_item.lower())
+        verb = split_input[0]
+        obj = split_input[1]
 
-        if (action_word in commands.keys()):
-            commands[action_word](item_list_item)
+        if (verb in commands.keys()):
+
+            if (not (verb == 'F' or verb == 'FIGHT')):
+                item_list_item = item_list.get(obj.lower())
+                commands[verb](item_list_item)
+
+            else:
+                monster_list_monster = monsters.get(obj.lower())
+                commands[verb](monster_list_monster)
 
         else:
-            unrecognized(action_word)
+            unrecognized(verb)
 
     elif (command in commands.keys()):
         commands[command]()
