@@ -1,7 +1,7 @@
 import random
 from room import Room
 from player import Player
-from item import Item, Potion, Weapon
+from item import Item, Potion, Weapon, Quest_Item
 from monster import Monster
 
 # Declare all the rooms
@@ -47,12 +47,19 @@ you can\'t make out what the light is from here. '''),
 
     'bridge': Room('Bridge',
                    '''Underneath you is an unstable bridge with ragged ropes
-keeping it from falling into the massive chasm beneath you.''')
+keeping it from falling into the massive chasm beneath you.'''),
+
+    'light': Room('Light Source',
+                  '''You have reached the source of the flickering light that 
+you could see from across the chasm you just crossed.
+You can see that the light originated from a pedastal 
+that now stands in front of you. This pedastal has a
+slot that looks like a jewel can fit inside...''')
 
 }
 
 item_list = {
-    'jewel': Item('Jewel', 'A jewel that looks like it could have belonged to royalty at one time.'),
+    'jewel': Quest_Item('Jewel', 'A jewel that looks like it could have belonged to royalty at one time.', room['light']),
     'ring': Item('Ring', 'A simple ring.'),
     'sword': Weapon('Sword', 'Your average, everyday, run-of-the-mill sword.', 1),
     'bow': Item('Bow', 'Just a bow. No arrows...'),
@@ -66,6 +73,7 @@ monsters = {
     'goblin': Monster('Goblin', None, 3, 1),
     'goblin2': Monster('Goblin', None, 3, 1),
     'goblin3': Monster('Goblin', None, 3, 1),
+    'boss': Monster('Big Boss', None, 10, 2),
 }
 
 # Link rooms together
@@ -85,6 +93,8 @@ room['loft'].n_to = room['balcony']
 room['balcony'].s_to = room['loft']
 room['balcony'].n_to = room['bridge']
 room['bridge'].s_to = room['balcony']
+room['bridge'].n_to = room['light']
+room['light'].s_to = room['bridge']
 
 # Add items to rooms
 room['outside'].add_item_to_room(item_list['arrows'])
@@ -104,6 +114,7 @@ room['narrow'].add_monster_to_room(monsters['ogre2'])
 room['bridge'].add_monster_to_room(monsters['goblin'])
 room['bridge'].add_monster_to_room(monsters['goblin2'])
 room['bridge'].add_monster_to_room(monsters['goblin3'])
+room['light'].add_monster_to_room(monsters['boss'])
 
 #
 # Main
@@ -142,8 +153,8 @@ while not crashed:
     current_room = user.current_room
 
     # * Prints the current room name and prints the current description (the textwrap module might be useful here)
-    if (current_room == None):
-        crashed = True
+    if (current_room == room['light'] and current_room.has_monsters()):
+        fight_monster(current_room.monster_list[0])
 
     print(f"\n{current_room.name}: {current_room.description}\n")
 
@@ -190,7 +201,7 @@ while not crashed:
                 f'"{selection}" is not in your inventory.\nPlease check your spelling and try again.')
 
     def move_to_room():
-        if (len(current_room.monster_list) > 0):
+        if (current_room.has_monsters()):
             fight_monster(current_room.monster_list[0])
         elif (room_dirs[command]['check'] == None):
             # Prints an error message if the movement isn't allowed.
@@ -236,6 +247,8 @@ while not crashed:
                     unrecognized(command)
 
                 if (monster.hp <= 0 or user.hp <= 0):
+                    if (user.hp <= 0):
+                        crashed = True
                     combat = False
 
     commands = {
@@ -258,6 +271,7 @@ while not crashed:
         'HEALTH': user.print_health,
         'U': user.use_item,
         'USE': user.use_item,
+        'EQUIP': user.use_item,
     }
 
     if (len(split_input) > 1):

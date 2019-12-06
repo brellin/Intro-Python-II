@@ -34,8 +34,14 @@ class Room():
     def has_monster(self, monster):
         return monster in self.monster_list
 
+    def has_monsters(self):
+        return len(self.monster_list) > 0
+
+    def has_items(self):
+        return len(self.item_list) > 0
+
     def print_contents(self):
-        if (len(self.item_list) > 0):
+        if (self.has_items()):
             condS = 's' if len(self.item_list) > 1 else ''
             print(f'Item{condS} in {self.name}:')
             for item in self.item_list:
@@ -43,7 +49,7 @@ class Room():
         else:
             print(f'There are no items in {self.name}.')
 
-        if (len(self.monster_list) > 0):
+        if (self.has_monsters()):
             for monster in self.monster_list:
                 print(f'\n{monster.name} is in the room!')
         else:

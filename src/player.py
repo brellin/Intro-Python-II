@@ -1,4 +1,4 @@
-from item import Potion, Weapon
+from item import Potion, Weapon, Quest_Item
 
 
 class Player():
@@ -24,7 +24,7 @@ class Player():
         item.on_take()
 
     def drop_item(self, item):
-        self.inventory.remove(item)
+        self.inventory.remove(item) if item.droppable == True else None
         item.on_drop()
 
     def use_item(self, item):
@@ -40,6 +40,21 @@ class Player():
                 self.dmg -= self.equipped.damage
             self.dmg += item.damage
             item.on_equip()
+        elif (type(item) == Quest_Item):
+            if (self.current_room == item.room):
+                print(f'''As you take out the jewel and place it on the pedastal,
+the flickering light becomes a pillar of light that shoots
+up into the sky, lighting up this dark and damp land.
+You can see inside the depths of the chasm - and it\'s
+filled with bodies of travellers and adventurers like
+yourself that have failed in the quest that you have
+just completed.\n\n\tCongratulations!\n
+If you got this far, that means you have bested me 
+and you are now my adversary. 😂😂''')
+                quit()
+            else:
+                print(
+                    f'You can\'t use the {item.name} here. Try somewhere else.')
         else:
             print(f'\nYou cannot use {item.name}.')
 
