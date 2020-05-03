@@ -1,4 +1,4 @@
-import random
+from random import randint
 from room import Room
 from player import Player
 from item import Item, Potion, Weapon, Quest_Item
@@ -239,7 +239,7 @@ while not crashed:
                 if (command in commands.keys()):
                     commands[command](monster, current_room)
 
-                    randomizer = random.randint(0, 10)
+                    randomizer = randint(0, 10)
 
                     monster.attack(
                         user, current_room) if randomizer > 3 else monster.block(user, current_room)
@@ -248,6 +248,7 @@ while not crashed:
 
                 if (monster.hp <= 0 or user.hp <= 0):
                     if (user.hp <= 0):
+                        global crashed
                         crashed = True
                     combat = False
 
